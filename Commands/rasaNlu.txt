@@ -1,0 +1,7 @@
+cd C:\Users\soura\Desktop\Rasa NLU
+.\venv\Scripts\activate
+cd .\New
+rasa run --enable-api -m models\nlu-20221202-203002-cold-resource.tar.gz --cors "*"
+
+ lt -p 5005 -s test-rasa-nlu-100-119-342
+ lt -p 8000 -s test-hay-stack-100-119-342

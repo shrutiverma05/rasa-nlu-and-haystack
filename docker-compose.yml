@@ -1,0 +1,66 @@
+version: '3'
+services:
+   documenthost:
+     container_name: "my-docker-instance"
+     build: ./Hosted data
+     ports:
+       - 8060:8060
+     networks:
+       - test-network
+    #  restart: on-failure 
+     healthcheck: 
+        test: curl --fail http://localhost:8060/ || exit 1
+        interval: 10s
+        timeout: 1s
+        retries: 10
+
+   elasticsearch:
+     image: "deepset/elasticsearch-countries-and-capitals"
+     ports:
+       - 9200:9200
+     networks:
+       - test-network
+    #  restart: on-failure 
+     environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
+     healthcheck:
+        test: curl --fail http://localhost:9200/_cat/health || exit 1
+        interval: 10s
+        timeout: 1s
+        retries: 10
+
+   haystack:
+     container_name: "haystack"
+     build: .
+     networks:
+       - test-network
+    #  restart: on-failure  
+     environment:
+      # See rest_api/pipeline/pipelines.haystack-pipeline.yml for configurations of Search & Indexing Pipeline.
+       - ELASTICSEARCH_HOST=elasticsearch
+       - DOCUMENTSTORE_ENDPOINT=http://documenthost:8060/
+     depends_on:
+      elasticsearch:
+         condition: service_healthy
+      documenthost:
+          condition: service_healthy
+   api:
+     container_name: "haystack_api"
+     build: ./api
+     ports:
+       - 8000:8000
+     networks:
+       - test-network
+    #  restart: on-failure
+     environment:
+      # See rest_api/pipeline/pipelines.haystack-pipeline.yml for configurations of Search & Indexing Pipeline.
+       - ELASTICSEARCH_HOST=elasticsearch
+       - Document_Host=documenthost
+     depends_on:
+      elasticsearch:
+         condition: service_healthy
+      documenthost:
+         condition: service_healthy
+networks:
+  test-network:

@@ -1,0 +1,8 @@
+
+uvicorn api:app --reload
+
+cd ./"Hosted data"
+python -m http.server 8060
+
+ngrok http 3978 --host-header="localhost:3978"
+

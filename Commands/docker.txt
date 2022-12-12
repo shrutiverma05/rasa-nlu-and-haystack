@@ -1,0 +1,25 @@
+//create the docker network 
+
+docker network create test-network
+docker network inspect test-network
+docker network add dkjsadjasklj
+
+//Add Container to same network 
+
+docker compose up --build
+docker run 
+
+
+//hosted data 
+hosted
+docker build -t testing/hosted .
+docker run --rm -it --name my-docker-instance --network="test-network" -p 8060:8060 testing/hosted
+
+//haystack 
+docker build -t testing/haystack .
+docker run --network="test-network" testing/haystack
+
+//for haystackApi
+docker build -t testing/api .
+docker run --network="test-network" -p 8000:8000  testing/api
+
